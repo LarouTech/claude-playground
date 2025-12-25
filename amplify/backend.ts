@@ -4,7 +4,8 @@ import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { CfnOutput, Stack, Duration } from 'aws-cdk-lib';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Function as LambdaFunction, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
+import { Function as LambdaFunction, Runtime, Code, FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
+import { HttpMethod } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 
 /**
@@ -68,10 +69,17 @@ apiFunction.addToRolePolicy(
 
 // Add Function URL with CORS configuration
 const functionUrl = apiFunction.addFunctionUrl({
-  authType: 'NONE', // Public access - authentication is handled by NestJS/Cognito
+  authType: FunctionUrlAuthType.NONE, // Public access - authentication is handled by NestJS/Cognito
   cors: {
     allowedOrigins: ['*'],
-    allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedMethods: [
+      HttpMethod.GET,
+      HttpMethod.POST,
+      HttpMethod.PUT,
+      HttpMethod.DELETE,
+      HttpMethod.PATCH,
+      HttpMethod.OPTIONS
+    ],
     allowedHeaders: ['*'],
     allowCredentials: true,
   },
