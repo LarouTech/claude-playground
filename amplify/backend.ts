@@ -25,28 +25,36 @@ const backend = defineBackend({
 });
 
 /**
- * Create Lambda function using CDK directly to avoid bundling issues
- * We use the pre-built backend from backend/dist
+ * Create Lambda function using CDK directly
+ * Uses pre-built backend from backend/dist (no Docker required)
  */
 const apiStack = Stack.of(backend.data);
+
+// Build backend before deployment
+import { execSync } from 'child_process';
+const backendPath = path.join(__dirname, '../backend');
+
+console.log('Building NestJS backend...');
+try {
+  execSync('npm run build', { cwd: backendPath, stdio: 'inherit' });
+} catch (error) {
+  console.error('Failed to build backend:', error);
+  throw error;
+}
 
 const apiFunction = new LambdaFunction(apiStack, 'JobResumeAnalyzerApi', {
   runtime: Runtime.NODEJS_18_X,
   handler: 'dist/lambda.handler',
-  code: Code.fromAsset(path.join(__dirname, '../backend'), {
-    bundling: {
-      image: Runtime.NODEJS_18_X.bundlingImage,
-      command: [
-        'bash', '-c', [
-          'npm ci --production',
-          'npm run build',
-          'cp -r dist /asset-output/',
-          'cp -r node_modules /asset-output/',
-          'cp package.json /asset-output/',
-        ].join(' && ')
-      ],
-      user: 'root',
-    },
+  code: Code.fromAsset(backendPath, {
+    // Exclude dev dependencies and source files to reduce package size
+    exclude: [
+      'src',
+      'test',
+      'node_modules/@types',
+      '*.ts',
+      'tsconfig.json',
+      '.env*',
+    ],
   }),
   timeout: Duration.seconds(30),
   memorySize: 2048,
