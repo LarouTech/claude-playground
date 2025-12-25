@@ -1,0 +1,138 @@
+service: job-resume-analyzer-backend
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 1024
+  timeout: 30
+  environment:
+    STAGE: ${self:provider.stage}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    DYNAMODB_TABLE: ${self:custom.tableName}
+    S3_BUCKET: ${self:custom.bucketName}
+    OPENAI_API_KEY: ${env:OPENAI_API_KEY, ''}
+    USE_BEDROCK: ${env:USE_BEDROCK, 'true'}
+    BEDROCK_MODEL_ID: ${env:BEDROCK_MODEL_ID, 'anthropic.claude-3-sonnet-20240229-v1:0'}
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - !GetAtt JobResumeTable.Arn
+            - !Join ['/', [!GetAtt JobResumeTable.Arn, 'index/*']]
+
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource:
+            - !Join ['/', [!GetAtt ResumeUploadsBucket.Arn, '*']]
+
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+          Resource: '*'
+
+custom:
+  tableName: job-resume-analyzer-${self:provider.stage}
+  bucketName: job-resume-uploads-${self:provider.stage}-${aws:accountId}
+
+  serverless-offline:
+    httpPort: 3000
+    lambdaPort: 3002
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: ANY
+          path: /{proxy+}
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+      - http:
+          method: ANY
+          path: /
+          cors:
+            origin: '*'
+
+resources:
+  Resources:
+    JobResumeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+          - AttributeName: GSI1PK
+            AttributeType: S
+          - AttributeName: GSI1SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: GSI1
+            KeySchema:
+              - AttributeName: GSI1PK
+                KeyType: HASH
+              - AttributeName: GSI1SK
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+
+    ResumeUploadsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              AllowedHeaders:
+                - '*'
+        LifecycleConfiguration:
+          Rules:
+            - Id: DeleteOldUploads
+              Status: Enabled
+              ExpirationInDays: 90
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline

@@ -1,0 +1,30 @@
+{
+  "name": "job-resume-analyzer",
+  "version": "1.0.0",
+  "description": "Intelligent job posting analyzer that compares resumes against job descriptions",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "amplify"
+  ],
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../amplify && npm install",
+    "dev:backend": "cd backend && npm run start:dev",
+    "build:backend": "cd backend && npm run build",
+    "test:backend": "cd backend && npm test",
+    "deploy:backend": "cd backend && serverless deploy",
+    "deploy:amplify": "cd amplify && amplify push"
+  },
+  "keywords": [
+    "job",
+    "resume",
+    "analyzer",
+    "cover-letter",
+    "aws",
+    "serverless",
+    "nestjs",
+    "angular"
+  ],
+  "author": "",
+  "license": "MIT"
+}
