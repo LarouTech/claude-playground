@@ -26,7 +26,7 @@ const backend = defineBackend({
 
 /**
  * Create Lambda function using CDK directly
- * Uses Docker bundling for consistent builds
+ * Builds locally (no Docker required) and packages for Lambda
  */
 const apiStack = Stack.of(backend.data);
 
@@ -34,19 +34,21 @@ const apiFunction = new LambdaFunction(apiStack, 'JobResumeAnalyzerApi', {
   runtime: Runtime.NODEJS_18_X,
   handler: 'dist/lambda.handler',
   code: Code.fromAsset(path.join(__dirname, '../backend'), {
-    bundling: {
-      image: Runtime.NODEJS_18_X.bundlingImage,
-      command: [
-        'bash', '-c', [
-          'npm ci --omit=dev',
-          'npm run build',
-          'cp -r dist /asset-output/',
-          'cp -r node_modules /asset-output/',
-          'cp package.json /asset-output/',
-        ].join(' && ')
-      ],
-      user: 'root',
-    },
+    // No bundling - assumes backend is already built
+    // Run 'npm run build' in backend directory before deploying
+    exclude: [
+      'src/**/*.ts',
+      'test',
+      '*.ts',
+      'tsconfig.json',
+      'tsconfig.*.json',
+      '.env*',
+      'jest.config.js',
+      'coverage',
+      '.eslintrc.js',
+      '.prettierrc',
+      'README.md',
+    ],
   }),
   timeout: Duration.seconds(30),
   memorySize: 2048,
