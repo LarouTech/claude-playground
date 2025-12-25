@@ -77,19 +77,13 @@ apiFunction.addToRolePolicy(
 
 // Add Function URL with CORS configuration
 const functionUrl = apiFunction.addFunctionUrl({
-  authType: FunctionUrlAuthType.NONE, // Public access - authentication is handled by NestJS/Cognito
+  authType: FunctionUrlAuthType.NONE,
   cors: {
     allowedOrigins: ['*'],
     allowedMethods: [
-      HttpMethod.GET,
-      HttpMethod.POST,
-      HttpMethod.PUT,
-      HttpMethod.DELETE,
-      HttpMethod.PATCH,
-      HttpMethod.OPTIONS
+      HttpMethod.ALL, // Allows all HTTP methods
     ],
     allowedHeaders: ['*'],
-    allowCredentials: true,
   },
 });
 
