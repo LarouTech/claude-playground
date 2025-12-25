@@ -1,0 +1,92 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+    <div class="space-x-4">
+      <a routerLink="/upload-resume" class="btn-primary">Upload Resume</a>
+      <a routerLink="/job-input" class="btn-secondary">Add Job Posting</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    <p class="mt-4 text-gray-600">Loading your data...</p>
+  </div>
+
+  <div *ngIf="!loading" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Resumes Card -->
+    <div class="card">
+      <h2 class="text-xl font-semibold mb-4">Your Resumes</h2>
+      <div *ngIf="resumes.length === 0" class="text-gray-500 text-center py-4">
+        No resumes yet. Upload one to get started!
+      </div>
+      <div *ngFor="let resume of resumes" class="border-b last:border-b-0 py-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-medium">{{ resume.fileName }}</p>
+            <p class="text-sm text-gray-500">{{ resume.uploadedAt | date }}</p>
+          </div>
+          <button (click)="deleteResume(resume.resumeId)" class="text-red-600 hover:text-red-800">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs Card -->
+    <div class="card">
+      <h2 class="text-xl font-semibold mb-4">Job Postings</h2>
+      <div *ngIf="jobs.length === 0" class="text-gray-500 text-center py-4">
+        No job postings yet. Add one to analyze!
+      </div>
+      <div *ngFor="let job of jobs" class="border-b last:border-b-0 py-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-medium">{{ job.title }}</p>
+            <p class="text-sm text-gray-500">{{ job.company }}</p>
+          </div>
+          <button (click)="deleteJob(job.jobId)" class="text-red-600 hover:text-red-800">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Matches Card -->
+    <div class="card">
+      <h2 class="text-xl font-semibold mb-4">Recent Analyses</h2>
+      <div *ngIf="matches.length === 0" class="text-gray-500 text-center py-4">
+        No analyses yet. Match a resume with a job!
+      </div>
+      <div *ngFor="let match of matches" class="border-b last:border-b-0 py-3">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <div class="flex items-center space-x-2">
+              <div class="font-semibold text-2xl" [class.text-green-600]="match.matchScore >= 70"
+                   [class.text-yellow-600]="match.matchScore >= 50 && match.matchScore < 70"
+                   [class.text-red-600]="match.matchScore < 50">
+                {{ match.matchScore }}%
+              </div>
+              <div class="text-sm text-gray-500">Match Score</div>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">{{ match.createdAt | date }}</p>
+          </div>
+          <a [routerLink]="['/match', match.sessionId]" class="text-primary-600 hover:text-primary-800">
+            View Details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div *ngIf="!loading && resumes.length > 0 && jobs.length > 0" class="card bg-primary-50 border-2 border-primary-200">
+    <h2 class="text-xl font-semibold mb-4">Ready to Analyze?</h2>
+    <p class="text-gray-700 mb-4">You have {{ resumes.length }} resume(s) and {{ jobs.length }} job posting(s). Select them to create a new match analysis!</p>
+    <div class="flex space-x-4">
+      <a routerLink="/upload-resume" class="btn-primary">New Analysis</a>
+      <a *ngIf="matches.length > 0" [routerLink]="['/match', matches[0].sessionId]" class="btn-secondary">
+        View Latest Match
+      </a>
+    </div>
+  </div>
+</div>

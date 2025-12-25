@@ -1,16 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { Context, Handler } from 'aws-lambda';
-import { createServer, proxy } from 'aws-serverless-express';
-import { eventContext } from 'aws-serverless-express/middleware';
-import * as express from 'express';
+import { Context, Handler, Callback } from 'aws-lambda';
+import serverlessExpress from '@vendia/serverless-express';
+import express from 'express';
 import { AppModule } from './app.module';
-import { Server } from 'http';
 
-let cachedServer: Server;
+let cachedServer: Handler;
 
-async function bootstrapServer(): Promise<Server> {
+async function bootstrapServer(): Promise<Handler> {
   if (!cachedServer) {
     const expressApp = express();
     const nestApp = await NestFactory.create(
@@ -34,21 +32,18 @@ async function bootstrapServer(): Promise<Server> {
       }),
     );
 
-    // Add event context middleware
-    nestApp.use(eventContext());
-
     // Set global prefix
     nestApp.setGlobalPrefix('api');
 
     await nestApp.init();
 
-    cachedServer = createServer(expressApp);
+    cachedServer = serverlessExpress({ app: expressApp });
   }
 
   return cachedServer;
 }
 
-export const handler: Handler = async (event: any, context: Context) => {
-  const server = await bootstrapServer();
-  return proxy(server, event, context, 'PROMISE').promise;
+export const handler: Handler = async (event: any, context: Context, callback: Callback) => {
+  const serverHandler = await bootstrapServer();
+  return serverHandler(event, context, callback);
 };

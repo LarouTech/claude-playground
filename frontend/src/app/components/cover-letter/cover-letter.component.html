@@ -1,0 +1,43 @@
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6">Cover Letter Generator</h1>
+
+  <div *ngIf="!coverLetter && !loading" class="card mb-6">
+    <h2 class="text-xl font-semibold mb-4">Generate Your Cover Letter</h2>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="label">Tone</label>
+        <select [(ngModel)]="tone" class="input-field">
+          <option value="professional">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="enthusiastic">Enthusiastic</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label">Additional Information (Optional)</label>
+        <textarea [(ngModel)]="additionalInfo" rows="3" class="input-field" 
+                  placeholder="Add any specific points you'd like to highlight..."></textarea>
+      </div>
+
+      <button (click)="generateCoverLetter()" [disabled]="generating" 
+              class="btn-primary disabled:opacity-50">
+        {{ generating ? 'Generating...' : 'Generate Cover Letter' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="coverLetter" class="space-y-4">
+    <div class="flex justify-between items-center">
+      <p class="text-sm text-gray-500">Generated: {{ coverLetter.generatedAt | date:'medium' }}</p>
+      <div class="space-x-2">
+        <button (click)="copyToClipboard()" class="btn-secondary">Copy to Clipboard</button>
+        <button (click)="coverLetter = null" class="btn-secondary">Regenerate</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <pre class="whitespace-pre-wrap font-sans">{{ coverLetter.coverLetter }}</pre>
+    </div>
+  </div>
+</div>

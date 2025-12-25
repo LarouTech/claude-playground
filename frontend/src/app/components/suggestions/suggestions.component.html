@@ -1,0 +1,54 @@
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6">Suggestions for Improvement</h1>
+
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+  </div>
+
+  <div *ngIf="!loading && suggestions.length === 0" class="card text-center">
+    <p class="text-gray-500">No suggestions available for this analysis.</p>
+  </div>
+
+  <div *ngIf="!loading" class="space-y-4">
+    <div *ngFor="let suggestion of suggestions" class="card">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex-1">
+          <div class="flex items-center space-x-2 mb-2">
+            <span class="px-2 py-1 bg-primary-100 text-primary-800 rounded text-xs font-medium">
+              {{ suggestion.category.toUpperCase() }}
+            </span>
+            <span class="px-2 py-1 rounded text-xs font-medium"
+                  [class.bg-red-100]="suggestion.priority === 'high'"
+                  [class.text-red-800]="suggestion.priority === 'high'"
+                  [class.bg-yellow-100]="suggestion.priority === 'medium'"
+                  [class.text-yellow-800]="suggestion.priority === 'medium'"
+                  [class.bg-blue-100]="suggestion.priority === 'low'"
+                  [class.text-blue-800]="suggestion.priority === 'low'">
+              {{ suggestion.priority.toUpperCase() }} PRIORITY
+            </span>
+          </div>
+          <h3 class="text-lg font-semibold">{{ suggestion.title }}</h3>
+        </div>
+        <button *ngIf="!suggestion.acknowledged" 
+                (click)="acknowledgeSuggestion(suggestion)"
+                class="btn-primary text-sm">
+          Acknowledge
+        </button>
+        <span *ngIf="suggestion.acknowledged" class="text-green-600 font-medium">✓ Done</span>
+      </div>
+
+      <p class="text-gray-700 mb-3">{{ suggestion.description }}</p>
+
+      <div class="bg-gray-50 p-3 rounded">
+        <p class="font-medium text-sm text-gray-700 mb-1">Action Item:</p>
+        <p class="text-sm">{{ suggestion.actionable }}</p>
+      </div>
+
+      <div *ngIf="suggestion.acknowledged && suggestion.implementationNotes" 
+           class="mt-3 bg-green-50 p-3 rounded">
+        <p class="font-medium text-sm text-green-700 mb-1">Implementation Notes:</p>
+        <p class="text-sm">{{ suggestion.implementationNotes }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { MulterModule } from '@nestjs/platform-express';
 import { ResumeModule } from './modules/resume/resume.module';
 import { JobModule } from './modules/job/job.module';
 import { MatcherModule } from './modules/matcher/matcher.module';
@@ -14,6 +15,11 @@ import { AppService } from './app.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    MulterModule.register({
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+      },
     }),
     ResumeModule,
     JobModule,

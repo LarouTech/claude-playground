@@ -1,0 +1,24 @@
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6">Upload Resume</h1>
+
+  <div class="card">
+    <div class="mb-6">
+      <label class="label">Select Resume File</label>
+      <input type="file" (change)="onFileSelected($event)" 
+             accept=".pdf,.doc,.docx,.txt"
+             class="input-field">
+      <p class="text-sm text-gray-500 mt-2">Supported formats: PDF, DOC, DOCX, TXT</p>
+    </div>
+
+    <div *ngIf="selectedFile" class="mb-6 p-4 bg-gray-100 rounded">
+      <p class="font-medium">Selected File:</p>
+      <p>{{ selectedFile.name }}</p>
+      <p class="text-sm text-gray-500">{{ (selectedFile.size / 1024).toFixed(2) }} KB</p>
+    </div>
+
+    <button (click)="uploadResume()" [disabled]="!selectedFile || uploading" 
+            class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+      {{ uploading ? 'Uploading...' : 'Upload Resume' }}
+    </button>
+  </div>
+</div>

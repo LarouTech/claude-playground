@@ -177,20 +177,20 @@ export class MatcherService {
     // Check required skills
     requiredSkills.forEach((skill) => {
       if (resumeSkills.has(skill)) {
-        matchedSkills.push(skill);
+        matchedSkills.push(skill as string);
       } else {
-        missingRequired.push(skill);
+        missingRequired.push(skill as string);
       }
     });
 
     // Check preferred skills
     preferredSkills.forEach((skill) => {
       if (resumeSkills.has(skill)) {
-        if (!matchedSkills.includes(skill)) {
-          matchedSkills.push(skill);
+        if (!matchedSkills.includes(skill as string)) {
+          matchedSkills.push(skill as string);
         }
       } else {
-        missingPreferred.push(skill);
+        missingPreferred.push(skill as string);
       }
     });
 
@@ -208,7 +208,7 @@ export class MatcherService {
       missingPreferred,
       additionalSkills: Array.from(resumeSkills).filter(
         (s) => !requiredSkills.has(s) && !preferredSkills.has(s),
-      ),
+      ) as string[],
     };
   }
 
@@ -290,7 +290,7 @@ export class MatcherService {
       if (resumeKeywords.has(keyword)) {
         matchedCount++;
       } else {
-        missingKeywords.push(keyword);
+        missingKeywords.push(keyword as string);
       }
     });
 
