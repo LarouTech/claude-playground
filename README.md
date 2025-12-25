@@ -63,14 +63,15 @@ An intelligent serverless application that analyzes job postings against your re
 │   │   │   └── storage/      # DynamoDB & S3 integration
 │   │   ├── common/
 │   │   └── lambda.ts         # Lambda handler
-│   ├── serverless.yml        # Serverless Framework config
 │   └── package.json
 │
 ├── amplify/                  # AWS Amplify Gen 2 configuration
-│   ├── auth/
-│   ├── data/
-│   ├── storage/
-│   └── backend.ts
+│   ├── auth/                 # Cognito authentication
+│   ├── data/                 # DynamoDB schema (AppSync)
+│   ├── storage/              # S3 storage configuration
+│   ├── functions/
+│   │   └── api/              # NestJS API Lambda function
+│   └── backend.ts            # Main Amplify backend definition
 │
 ├── .github/
 │   └── workflows/
@@ -83,9 +84,8 @@ An intelligent serverless application that analyzes job postings against your re
 
 - Node.js 18+ and npm
 - Angular CLI: `npm install -g @angular/cli`
-- NestJS CLI: `npm install -g @nestjs/cli`
-- AWS CLI configured with credentials
-- Amplify CLI: `npm install -g @aws-amplify/cli`
+- AWS CLI configured with credentials (for deployment)
+- AWS Amplify Gen 2 CLI (installed via npx, no global install needed)
 
 ## Setup & Installation
 
@@ -108,52 +108,84 @@ cd ../backend
 npm install
 ```
 
-### 3. Configure AWS Amplify
+### 3. Set up environment variables
+
+Create a `.env` file in the backend directory:
 
 ```bash
-# Initialize Amplify
-amplify init
-
-# Deploy backend resources
-amplify push
-```
-
-### 4. Set up environment variables
-
-```bash
-# Frontend environment
-cp frontend/src/environments/environment.example.ts frontend/src/environments/environment.ts
-
 # Backend environment
 cp backend/.env.example backend/.env
 ```
 
-Update the environment files with your AWS resources and API keys.
+Update with your configuration (AWS credentials are not needed locally - they'll be used in deployment):
 
-### 5. Run locally
+```
+# AI Provider Configuration
+USE_BEDROCK=true
+BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
+OPENAI_API_KEY=your-openai-key  # Only if USE_BEDROCK=false
+```
+
+### 4. Run locally
 
 ```bash
 # Run frontend (http://localhost:4200)
 cd frontend
 npm start
 
-# Run backend locally with Serverless Offline
+# Run backend locally
 cd backend
 npm run start:dev
+
+# Or use Amplify sandbox for full cloud-connected development
+cd amplify
+npx ampx sandbox
 ```
 
 ## Deployment
 
-### Deploy with Amplify
+### Prerequisites
+
+1. AWS Account with credentials configured
+2. GitHub repository set up with the following secrets:
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - `AWS_REGION` (optional, defaults to us-east-1)
+   - `OPENAI_API_KEY` (optional, if not using Bedrock)
+   - `USE_BEDROCK` (optional, defaults to true)
+   - `BEDROCK_MODEL_ID` (optional)
+
+### Deploy with Amplify Gen 2
 
 ```bash
-# Deploy frontend and backend
-amplify publish
+# Install Amplify dependencies
+cd amplify
+npm install
+
+# Deploy to AWS
+npx ampx sandbox  # For development environment with hot reload
+# OR
+npx ampx deploy --branch main  # For production deployment
 ```
+
+The deployment will:
+- Create DynamoDB tables for data storage
+- Set up S3 buckets for file uploads
+- Deploy the NestJS backend as a Lambda function
+- Configure Cognito for authentication
+- Set up API Gateway with Function URLs
+- Deploy the Angular frontend to Amplify Hosting
+
+After deployment, Amplify will output the API URL and frontend URL.
 
 ### Deploy with GitHub Actions
 
-Push to the main branch and GitHub Actions will automatically deploy to AWS.
+Push to the `main` branch and GitHub Actions will automatically:
+1. Run backend tests
+2. Build the backend
+3. Deploy everything to AWS using Amplify Gen 2
+
+The deployment is fully automated via `.github/workflows/ci-cd.yml`.
 
 ## Testing
 
@@ -192,47 +224,58 @@ npm run test:e2e
 
 ## Environment Variables
 
-### Frontend (`frontend/src/environments/environment.ts`)
-
-```typescript
-export const environment = {
-  production: false,
-  apiUrl: 'https://your-api-gateway-url',
-  aws: {
-    region: 'us-east-1',
-    userPoolId: 'your-user-pool-id',
-    userPoolWebClientId: 'your-client-id',
-  }
-};
-```
-
 ### Backend (`backend/.env`)
 
 ```
-AWS_REGION=us-east-1
-DYNAMODB_TABLE_NAME=job-resume-analyzer
-S3_BUCKET_NAME=job-resume-uploads
-OPENAI_API_KEY=your-openai-key
-# OR use AWS Bedrock
+# AI Provider Configuration
 USE_BEDROCK=true
 BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
+
+# Optional: OpenAI API (if not using Bedrock)
+OPENAI_API_KEY=your-openai-key
 ```
+
+### Amplify Outputs
+
+After deploying with Amplify Gen 2, you'll get:
+- API Function URL (REST API endpoint)
+- Cognito User Pool ID
+- S3 Bucket names
+- DynamoDB table names
+
+These are automatically configured via Amplify outputs and don't need manual environment variables.
 
 ## Architecture
 
+### AWS Amplify Gen 2 Stack
+- **Frontend**: Angular 21 hosted on Amplify Hosting
+- **Backend**: NestJS running as AWS Lambda function
+- **API**: Lambda Function URL (no API Gateway needed)
+- **Database**: DynamoDB with AppSync schema
+- **Storage**: S3 for resume and document uploads
+- **Auth**: Amazon Cognito User Pools
+- **AI**: AWS Bedrock (Claude) or OpenAI API
+
 ### Frontend Flow
 1. User uploads resume and job posting
-2. Files sent to S3 via pre-signed URLs
-3. API calls trigger Lambda functions
+2. Files sent to S3 via Amplify Storage
+3. API calls to Lambda Function URL
 4. Results displayed in Angular UI
 
 ### Backend Flow
-1. Lambda receives API Gateway request
-2. NestJS processes request
+1. Lambda receives Function URL request
+2. NestJS processes request via serverless-express
 3. Resume/Job parsed and analyzed
-4. AI generates suggestions and cover letter
+4. AI (Bedrock/OpenAI) generates suggestions and cover letter
 5. Results stored in DynamoDB
 6. Response returned to frontend
+
+### Deployment Flow
+1. Code pushed to GitHub
+2. GitHub Actions triggers
+3. `ampx deploy` provisions all AWS resources via CDK
+4. Lambda function deployed with NestJS backend
+5. Frontend built and deployed to Amplify Hosting
 
 ## Cost Optimization
 

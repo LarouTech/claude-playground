@@ -40,8 +40,8 @@ jobs:
         working-directory: ./backend
         run: npm run build
 
-  deploy-backend:
-    name: Deploy Backend
+  deploy:
+    name: Deploy to AWS (Amplify Gen 2)
     needs: test-backend
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -61,45 +61,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         working-directory: ./backend
         run: npm ci
 
-      - name: Deploy with Serverless
+      - name: Build backend
         working-directory: ./backend
-        run: |
-          npm install -g serverless
-          serverless deploy --stage prod
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-  deploy-amplify:
-    name: Deploy Amplify
-    needs: test-backend
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+        run: npm run build
 
       - name: Install Amplify dependencies
         working-directory: ./amplify
         run: npm ci
 
-      - name: Deploy Amplify
+      - name: Deploy with Amplify Gen 2
         working-directory: ./amplify
-        run: |
-          npm install -g @aws-amplify/cli
-          amplify push --yes || echo "Amplify deployment skipped (not initialized)"
+        run: npx ampx deploy --branch main
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          USE_BEDROCK: ${{ secrets.USE_BEDROCK || 'true' }}
+          BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0' }}
