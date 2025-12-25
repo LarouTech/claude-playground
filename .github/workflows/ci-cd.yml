@@ -23,10 +23,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: ./backend
         run: npm ci
 
       - name: Run linter
@@ -62,17 +61,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install all dependencies (workspace)
         run: npm ci
 
       - name: Build backend
         working-directory: ./backend
         run: npm run build
-
-      - name: Install Amplify dependencies
-        working-directory: ./amplify
-        run: npm ci
 
       - name: Deploy with Amplify Gen 2
         working-directory: ./amplify
