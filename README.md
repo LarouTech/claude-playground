@@ -5,8 +5,8 @@ An intelligent serverless application that analyzes job postings against your re
 ## Tech Stack
 
 ### Frontend
-- **Framework**: Angular 17+
-- **Styling**: Tailwind CSS
+- **Framework**: Angular 21 (latest)
+- **Styling**: Tailwind CSS v4 (latest)
 - **Testing**: Jasmine & Karma
 
 ### Backend
@@ -48,9 +48,8 @@ An intelligent serverless application that analyzes job postings against your re
 │   │   │   ├── models/       # TypeScript interfaces
 │   │   │   └── pages/        # Page components
 │   │   ├── assets/
-│   │   └── styles/           # Tailwind CSS
+│   │   └── styles/           # Tailwind CSS v4 (CSS-based config)
 │   ├── angular.json
-│   ├── tailwind.config.js
 │   └── package.json
 │
 ├── backend/                  # NestJS application
