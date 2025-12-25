@@ -7,6 +7,12 @@ import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Function as LambdaFunction, Runtime, Code, FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { HttpMethod } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * AWS Amplify Gen 2 Backend Configuration
