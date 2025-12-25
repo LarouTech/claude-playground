@@ -144,48 +144,80 @@ npx ampx sandbox
 
 ## Deployment
 
-### Prerequisites
+### Initial Setup (Required for CI/CD)
 
-1. AWS Account with credentials configured
-2. GitHub repository set up with the following secrets:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `AWS_REGION` (optional, defaults to us-east-1)
-   - `OPENAI_API_KEY` (optional, if not using Bedrock)
-   - `USE_BEDROCK` (optional, defaults to true)
-   - `BEDROCK_MODEL_ID` (optional)
+Before GitHub Actions can deploy, you must create an Amplify app:
 
-### Deploy with Amplify Gen 2
+**Option 1: Using AWS Console (Recommended)**
+1. Go to AWS Amplify Console
+2. Create a new app → "Build an app"
+3. Choose "Without Git provider"
+4. Name it "job-resume-analyzer"
+5. Copy the **App ID** (looks like: `abcd1234efgh5678`)
+6. Add `AMPLIFY_APP_ID` to your GitHub repository secrets
+
+**Option 2: Using Sandbox (Local)**
+1. Configure AWS credentials locally:
+   ```bash
+   aws configure
+   ```
+2. Deploy sandbox to create the app:
+   ```bash
+   cd amplify
+   npm install
+   npx ampx sandbox
+   ```
+3. Once deployed, find your App ID in the Amplify Console
+4. Add `AMPLIFY_APP_ID` to GitHub secrets
+5. Stop the sandbox (Ctrl+C)
+
+### GitHub Secrets Required
+
+Add these secrets to your GitHub repository (Settings → Secrets → Actions):
+- **`AWS_ACCESS_KEY_ID`** - Your AWS access key
+- **`AWS_SECRET_ACCESS_KEY`** - Your AWS secret key
+- **`AMPLIFY_APP_ID`** - Your Amplify app ID (from initial setup above)
+- `AWS_REGION` - Optional, defaults to us-east-1
+- `OPENAI_API_KEY` - Optional, only if not using Bedrock
+- `USE_BEDROCK` - Optional, defaults to true
+- `BEDROCK_MODEL_ID` - Optional
+
+### Deploy with Amplify Gen 2 (Manual)
 
 ```bash
-# Install Amplify dependencies
+# Development with hot reload
 cd amplify
 npm install
+npx ampx sandbox
 
-# Deploy to AWS
-npx ampx sandbox  # For development environment with hot reload
-# OR
-npx ampx deploy --branch main  # For production deployment
+# The sandbox will:
+# - Create all AWS resources (DynamoDB, S3, Cognito, Lambda)
+# - Deploy your backend
+# - Watch for file changes and auto-deploy
+# - Output the API Function URL
 ```
 
-The deployment will:
-- Create DynamoDB tables for data storage
-- Set up S3 buckets for file uploads
-- Deploy the NestJS backend as a Lambda function
-- Configure Cognito for authentication
-- Set up API Gateway with Function URLs
-- Deploy the Angular frontend to Amplify Hosting
+### Deploy with GitHub Actions (Automated)
 
-After deployment, Amplify will output the API URL and frontend URL.
+Once you've completed the initial setup above, simply:
 
-### Deploy with GitHub Actions
+```bash
+# Push to your branch
+git push
 
-Push to the `main` branch and GitHub Actions will automatically:
-1. Run backend tests
-2. Build the backend
-3. Deploy everything to AWS using Amplify Gen 2
+# GitHub Actions will automatically:
+# 1. Run backend tests
+# 2. Build the backend
+# 3. Deploy to AWS using ampx pipeline-deploy
+```
 
-The deployment is fully automated via `.github/workflows/ci-cd.yml`.
+The deployment creates:
+- DynamoDB tables for data storage
+- S3 buckets for file uploads
+- Lambda function with NestJS backend
+- Cognito User Pool for authentication
+- Lambda Function URL for API access
+- All necessary IAM permissions
 
 ## Testing
 
