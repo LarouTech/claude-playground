@@ -70,7 +70,7 @@ jobs:
 
       - name: Deploy with Amplify Gen 2
         working-directory: ./amplify
-        run: npx ampx deploy --branch main
+        run: npx ampx pipeline-deploy --branch ${{ github.ref_name }} --app-id ${{ secrets.AMPLIFY_APP_ID }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           USE_BEDROCK: ${{ secrets.USE_BEDROCK || 'true' }}
