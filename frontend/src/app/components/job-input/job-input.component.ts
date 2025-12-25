@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { JobService } from '../../services/job.service';
@@ -8,11 +8,10 @@ import { MatchService } from '../../services/match.service';
 import { Resume } from '../../models/resume.model';
 
 @Component({
-  selector: 'app-job-input',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './job-input.component.html',
-  styleUrl: './job-input.component.css'
+    selector: 'app-job-input',
+    imports: [FormsModule, RouterLink],
+    templateUrl: './job-input.component.html',
+    styleUrl: './job-input.component.css'
 })
 export class JobInputComponent {
   jobTitle = '';

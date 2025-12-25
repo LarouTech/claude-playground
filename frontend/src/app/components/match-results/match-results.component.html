@@ -1,100 +1,113 @@
 <div class="max-w-5xl mx-auto">
-  <div *ngIf="loading" class="text-center py-12">
-    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-  </div>
-
-  <div *ngIf="!loading && match">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">Match Analysis</h1>
-      <div class="space-x-4">
-        <a [routerLink]="['/suggestions', match.sessionId]" class="btn-primary">View Suggestions</a>
-        <a [routerLink]="['/cover-letter', match.sessionId]" class="btn-secondary">Generate Cover Letter</a>
-      </div>
+  @if (loading) {
+    <div class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
     </div>
+  }
 
-    <!-- Overall Score -->
-    <div class="card mb-6 text-center">
-      <h2 class="text-xl font-semibold mb-2">Overall Match Score</h2>
-      <div class="text-6xl font-bold" [ngClass]="getScoreColor(match.matchResult.overallScore)">
-        {{ (match.matchResult.overallScore * 100).toFixed(0) }}%
+  @if (!loading && match) {
+    <div>
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Match Analysis</h1>
+        <div class="space-x-4">
+          <a [routerLink]="['/suggestions', match.sessionId]" class="btn-primary">View Suggestions</a>
+          <a [routerLink]="['/cover-letter', match.sessionId]" class="btn-secondary">Generate Cover Letter</a>
+        </div>
       </div>
-    </div>
-
-    <!-- Detailed Scores -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="card text-center">
-        <p class="text-gray-600 mb-2">Skills Match</p>
-        <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.skillsMatch.score)">
-          {{ (match.matchResult.skillsMatch.score * 100).toFixed(0) }}%
-        </p>
+      <!-- Overall Score -->
+      <div class="card mb-6 text-center">
+        <h2 class="text-xl font-semibold mb-2">Overall Match Score</h2>
+        <div class="text-6xl font-bold" [ngClass]="getScoreColor(match.matchResult.overallScore)">
+          {{ (match.matchResult.overallScore * 100).toFixed(0) }}%
+        </div>
       </div>
-      <div class="card text-center">
-        <p class="text-gray-600 mb-2">Experience Match</p>
-        <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.experienceMatch.score)">
-          {{ (match.matchResult.experienceMatch.score * 100).toFixed(0) }}%
-        </p>
+      <!-- Detailed Scores -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="card text-center">
+          <p class="text-gray-600 mb-2">Skills Match</p>
+          <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.skillsMatch.score)">
+            {{ (match.matchResult.skillsMatch.score * 100).toFixed(0) }}%
+          </p>
+        </div>
+        <div class="card text-center">
+          <p class="text-gray-600 mb-2">Experience Match</p>
+          <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.experienceMatch.score)">
+            {{ (match.matchResult.experienceMatch.score * 100).toFixed(0) }}%
+          </p>
+        </div>
+        <div class="card text-center">
+          <p class="text-gray-600 mb-2">Education Match</p>
+          <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.educationMatch.score)">
+            {{ (match.matchResult.educationMatch.score * 100).toFixed(0) }}%
+          </p>
+        </div>
+        <div class="card text-center">
+          <p class="text-gray-600 mb-2">Keyword Match</p>
+          <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.keywordMatch.score)">
+            {{ (match.matchResult.keywordMatch.score * 100).toFixed(0) }}%
+          </p>
+        </div>
       </div>
-      <div class="card text-center">
-        <p class="text-gray-600 mb-2">Education Match</p>
-        <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.educationMatch.score)">
-          {{ (match.matchResult.educationMatch.score * 100).toFixed(0) }}%
-        </p>
-      </div>
-      <div class="card text-center">
-        <p class="text-gray-600 mb-2">Keyword Match</p>
-        <p class="text-3xl font-bold" [ngClass]="getScoreColor(match.matchResult.keywordMatch.score)">
-          {{ (match.matchResult.keywordMatch.score * 100).toFixed(0) }}%
-        </p>
-      </div>
-    </div>
-
-    <!-- Skills Analysis -->
-    <div class="card mb-6">
-      <h2 class="text-xl font-semibold mb-4">Skills Analysis</h2>
-      <div class="space-y-4">
-        <div>
-          <h3 class="font-medium text-green-700 mb-2">Matched Skills ({{ match.matchResult.skillsMatch.matchedSkills.length }})</h3>
-          <div class="flex flex-wrap gap-2">
-            <span *ngFor="let skill of match.matchResult.skillsMatch.matchedSkills" 
+      <!-- Skills Analysis -->
+      <div class="card mb-6">
+        <h2 class="text-xl font-semibold mb-4">Skills Analysis</h2>
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-medium text-green-700 mb-2">Matched Skills ({{ match.matchResult.skillsMatch.matchedSkills.length }})</h3>
+            <div class="flex flex-wrap gap-2">
+              @for (skill of match.matchResult.skillsMatch.matchedSkills; track skill) {
+                <span
                   class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-              {{ skill }}
-            </span>
+                  {{ skill }}
+                </span>
+              }
+            </div>
           </div>
-        </div>
-        <div *ngIf="match.matchResult.skillsMatch.missingRequired.length > 0">
-          <h3 class="font-medium text-red-700 mb-2">Missing Required Skills ({{ match.matchResult.skillsMatch.missingRequired.length }})</h3>
-          <div class="flex flex-wrap gap-2">
-            <span *ngFor="let skill of match.matchResult.skillsMatch.missingRequired" 
-                  class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
-              {{ skill }}
-            </span>
-          </div>
+          @if (match.matchResult.skillsMatch.missingRequired.length > 0) {
+            <div>
+              <h3 class="font-medium text-red-700 mb-2">Missing Required Skills ({{ match.matchResult.skillsMatch.missingRequired.length }})</h3>
+              <div class="flex flex-wrap gap-2">
+                @for (skill of match.matchResult.skillsMatch.missingRequired; track skill) {
+                  <span
+                    class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                    {{ skill }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
         </div>
       </div>
-    </div>
-
-    <!-- Gaps -->
-    <div *ngIf="match.matchResult.gaps.length > 0" class="card mb-6">
-      <h2 class="text-xl font-semibold mb-4">Identified Gaps</h2>
-      <div class="space-y-2">
-        <div *ngFor="let gap of match.matchResult.gaps" class="flex items-start space-x-3 p-3 border rounded">
-          <span class="px-2 py-1 rounded text-xs font-medium" [ngClass]="getPriorityColor(gap.priority)">
-            {{ gap.priority.toUpperCase() }}
-          </span>
-          <p class="flex-1">{{ gap.description }}</p>
+      <!-- Gaps -->
+      @if (match.matchResult.gaps.length > 0) {
+        <div class="card mb-6">
+          <h2 class="text-xl font-semibold mb-4">Identified Gaps</h2>
+          <div class="space-y-2">
+            @for (gap of match.matchResult.gaps; track gap) {
+              <div class="flex items-start space-x-3 p-3 border rounded">
+                <span class="px-2 py-1 rounded text-xs font-medium" [ngClass]="getPriorityColor(gap.priority)">
+                  {{ gap.priority.toUpperCase() }}
+                </span>
+                <p class="flex-1">{{ gap.description }}</p>
+              </div>
+            }
+          </div>
         </div>
-      </div>
+      }
+      <!-- Strengths -->
+      @if (match.matchResult.strengths.length > 0) {
+        <div class="card">
+          <h2 class="text-xl font-semibold mb-4">Your Strengths</h2>
+          <ul class="space-y-2">
+            @for (strength of match.matchResult.strengths; track strength) {
+              <li class="flex items-start">
+                <span class="text-green-600 mr-2">✓</span>
+                <span>{{ strength }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
-
-    <!-- Strengths -->
-    <div *ngIf="match.matchResult.strengths.length > 0" class="card">
-      <h2 class="text-xl font-semibold mb-4">Your Strengths</h2>
-      <ul class="space-y-2">
-        <li *ngFor="let strength of match.matchResult.strengths" class="flex items-start">
-          <span class="text-green-600 mr-2">✓</span>
-          <span>{{ strength }}</span>
-        </li>
-      </ul>
-    </div>
-  </div>
+  }
 </div>

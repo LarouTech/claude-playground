@@ -15,26 +15,32 @@
 
       <div>
         <label class="label">Job Description <span class="text-red-500">*</span></label>
-        <textarea [(ngModel)]="jobDescription" rows="12" class="input-field" 
-                  placeholder="Paste the full job description here..."></textarea>
+        <textarea [(ngModel)]="jobDescription" rows="12" class="input-field"
+        placeholder="Paste the full job description here..."></textarea>
       </div>
 
-      <div *ngIf="resumes.length > 0">
-        <label class="label">Select Resume to Match (Optional)</label>
-        <select [(ngModel)]="selectedResumeId" class="input-field">
-          <option value="">Don't create match</option>
-          <option *ngFor="let resume of resumes" [value]="resume.resumeId">
-            {{ resume.fileName }}
-          </option>
-        </select>
-      </div>
+      @if (resumes.length > 0) {
+        <div>
+          <label class="label">Select Resume to Match (Optional)</label>
+          <select [(ngModel)]="selectedResumeId" class="input-field">
+            <option value="">Don't create match</option>
+            @for (resume of resumes; track resume) {
+              <option [value]="resume.resumeId">
+                {{ resume.fileName }}
+              </option>
+            }
+          </select>
+        </div>
+      }
 
-      <div *ngIf="resumes.length === 0" class="bg-yellow-50 border border-yellow-200 rounded p-4">
-        <p class="text-yellow-800">No resumes found. <a routerLink="/upload-resume" class="underline">Upload a resume</a> first to create a match analysis.</p>
-      </div>
+      @if (resumes.length === 0) {
+        <div class="bg-yellow-50 border border-yellow-200 rounded p-4">
+          <p class="text-yellow-800">No resumes found. <a routerLink="/upload-resume" class="underline">Upload a resume</a> first to create a match analysis.</p>
+        </div>
+      }
 
-      <button (click)="analyzeJob()" [disabled]="!jobDescription || analyzing" 
-              class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full">
+      <button (click)="analyzeJob()" [disabled]="!jobDescription || analyzing"
+        class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full">
         {{ analyzing ? 'Analyzing...' : (selectedResumeId ? 'Analyze & Match' : 'Analyze Job') }}
       </button>
     </div>

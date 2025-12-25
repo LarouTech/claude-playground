@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { SuggestionService } from '../../services/suggestion.service';
 import { Suggestion } from '../../models/suggestion.model';
 
 @Component({
-  selector: 'app-suggestions',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './suggestions.component.html',
-  styleUrl: './suggestions.component.css'
+    selector: 'app-suggestions',
+    imports: [FormsModule],
+    templateUrl: './suggestions.component.html',
+    styleUrl: './suggestions.component.css'
 })
 export class SuggestionsComponent implements OnInit {
   suggestions: Suggestion[] = [];

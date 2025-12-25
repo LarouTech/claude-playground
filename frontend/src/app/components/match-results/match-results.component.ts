@@ -5,11 +5,10 @@ import { MatchService } from '../../services/match.service';
 import { MatchSession } from '../../models/match.model';
 
 @Component({
-  selector: 'app-match-results',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './match-results.component.html',
-  styleUrl: './match-results.component.css'
+    selector: 'app-match-results',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './match-results.component.html',
+    styleUrl: './match-results.component.css'
 })
 export class MatchResultsComponent implements OnInit {
   match: MatchSession | null = null;

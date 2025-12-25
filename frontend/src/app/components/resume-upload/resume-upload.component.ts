@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { ResumeService } from '../../services/resume.service';
 
 @Component({
-  selector: 'app-resume-upload',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './resume-upload.component.html',
-  styleUrl: './resume-upload.component.css'
+    selector: 'app-resume-upload',
+    imports: [],
+    templateUrl: './resume-upload.component.html',
+    styleUrl: './resume-upload.component.css'
 })
 export class ResumeUploadComponent {
   selectedFile: File | null = null;

@@ -9,11 +9,10 @@ import { Job } from '../../models/job.model';
 import { MatchSession } from '../../models/match.model';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+    selector: 'app-dashboard',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './dashboard.component.html',
+    styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
   resumes: Resume[] = [];

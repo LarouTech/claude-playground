@@ -6,11 +6,10 @@ import { CoverLetterService } from '../../services/cover-letter.service';
 import { CoverLetter } from '../../models/cover-letter.model';
 
 @Component({
-  selector: 'app-cover-letter',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './cover-letter.component.html',
-  styleUrl: './cover-letter.component.css'
+    selector: 'app-cover-letter',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './cover-letter.component.html',
+    styleUrl: './cover-letter.component.css'
 })
 export class CoverLetterComponent implements OnInit {
   coverLetter: CoverLetter | null = null;
